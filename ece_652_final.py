@@ -7,6 +7,12 @@ def gcd(a,b):
 def lcm(a,b):
     return abs(a*b)// gcd(a,b)
 
+def calculate_hyperperiod(periods):
+    current_lcm=periods[0]
+    for period in periods[1:]:
+        current_lcm=lcm(current_lcm,period)
+    return current_lcm
+
 class Task:
     def __init__(self,execution_time,period,deadline):
         self.execution_time=execution_time
