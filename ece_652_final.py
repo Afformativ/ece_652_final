@@ -1,3 +1,5 @@
+import sys 
+
 def gcd(a,b):
     if(b==0):
         return(abs(a))
@@ -27,7 +29,7 @@ def read_task(filename):
     tasks=[]
     with open(filename,'r') as file:
         for line in file:
-            execution_time,period,deadline=map(float,line.strip().strip(','))
+            execution_time, period, deadline=map(float, line.strip().split(','))
             tasks.append(Task(execution_time,period,deadline))
     return tasks
 
@@ -66,3 +68,21 @@ def deadline_monotonic_scheduling(tasks,hyperperiod):
             return 0, []
     
     return 1, [task.preemptions for task in tasks]
+
+def main(filename):
+    tasks = read_task(filename)
+    periods = [task.period for task in tasks]
+    hyperperiod = calculate_hyperperiod(periods)
+
+    res, preemptions = deadline_monotonic_scheduling(tasks, hyperperiod)
+
+    print(res)
+    if res:
+        print(','.join(map(str,preemptions)))
+    else:
+        print()
+
+if __name__=="__main__":
+    filename = sys.argv[1]
+    main(filename)
+
