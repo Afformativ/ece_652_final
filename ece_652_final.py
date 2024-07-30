@@ -1,4 +1,5 @@
 import sys 
+from fractions import Fraction
 
 def gcd(a,b):
     if(b==0):
@@ -15,6 +16,12 @@ def calculate_hyperperiod(periods):
         current_lcm=lcm(current_lcm,period)
     return current_lcm
 
+def multiple_gcd(numbers):
+    current_gcd=numbers[0]
+    for number in numbers[1:]:
+        current_gcd=gcd(current_gcd,number)
+    return current_gcd
+
 class Task:
     def __init__(self,execution_time,period,deadline):
         self.execution_time=execution_time
@@ -29,13 +36,13 @@ def read_task(filename):
     tasks=[]
     with open(filename,'r') as file:
         for line in file:
-            execution_time, period, deadline=map(float, line.strip().split(','))
+            execution_time, period, deadline=map(Fraction, line.strip().split(','))
             tasks.append(Task(execution_time,period,deadline))
     return tasks
 
-def deadline_monotonic_scheduling(tasks,hyperperiod):
+def deadline_monotonic_scheduling(tasks,hyperperiod,precision):
     sorted_tasks=sorted(tasks,key=lambda x: x.deadline)
-    time=0
+    time=Fraction(0)
     previous_task=None
 
     while time < hyperperiod:
@@ -47,7 +54,7 @@ def deadline_monotonic_scheduling(tasks,hyperperiod):
         
         runnable_tasks=[t for t in sorted_tasks if t.remaining_time > 0  and time < t.absolute_deadline]
         if not runnable_tasks:
-            time += 0.5
+            time += precision
             continue
         
         highest_priority_task=min(runnable_tasks,key=lambda t: t.deadline)
@@ -55,13 +62,14 @@ def deadline_monotonic_scheduling(tasks,hyperperiod):
         if previous_task and previous_task != highest_priority_task:
             previous_task.preemptions += 1
         
-        highest_priority_task.remaining_time -= 0.5
+        highest_priority_task.remaining_time -= precision
         previous_task = highest_priority_task
 
-        if highest_priority_task.remaining_time == 0:
+        if highest_priority_task.remaining_time <= 0:
+            highest_priority_task.remaining_time = 0
             previous_task=None
         
-        time += 0.5
+        time += precision
 
     for task in sorted_tasks:
         if task.remaining_time > 0:
@@ -74,7 +82,10 @@ def main(filename):
     periods = [task.period for task in tasks]
     hyperperiod = calculate_hyperperiod(periods)
 
-    res, preemptions = deadline_monotonic_scheduling(tasks, hyperperiod)
+    all_inputs=[task.execution_time for task in tasks] + [task.period for task in tasks] + [task.deadline for task in tasks]
+    precision=multiple_gcd(all_inputs)
+    
+    res, preemptions = deadline_monotonic_scheduling(tasks, hyperperiod,precision)
 
     print(res)
     if res:
