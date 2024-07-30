@@ -14,3 +14,11 @@ class Task:
         self.deadline=deadline
         self.remaining_time=0
         self.preemptions=0
+
+def read_task(filename):
+    tasks=[]
+    with open(filename,'r') as file:
+        for line in file:
+            execution_time,period,deadline=map(float,line.strip().strip(','))
+            tasks.append(Task(execution_time,period,deadline))
+    return tasks
