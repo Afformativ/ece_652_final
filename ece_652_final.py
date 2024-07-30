@@ -38,7 +38,7 @@ def deadline_monotonic_scheduling(tasks,hyperperiod):
     time=0
     previous_task=None
 
-    while time<hyperperiod:
+    while time < hyperperiod:
         for task in sorted_tasks:
             if time % task.period==0:
                 task.remaining_time=task.execution_time
@@ -47,7 +47,7 @@ def deadline_monotonic_scheduling(tasks,hyperperiod):
         
         runnable_tasks=[t for t in sorted_tasks if t.remaining_time > 0  and time < t.absolute_deadline]
         if not runnable_tasks:
-            time += 1
+            time += 0.5
             continue
         
         highest_priority_task=min(runnable_tasks,key=lambda t: t.deadline)
@@ -55,13 +55,13 @@ def deadline_monotonic_scheduling(tasks,hyperperiod):
         if previous_task and previous_task != highest_priority_task:
             previous_task.preemptions += 1
         
-        highest_priority_task.remaining_time -= 1
+        highest_priority_task.remaining_time -= 0.5
         previous_task = highest_priority_task
 
         if highest_priority_task.remaining_time == 0:
             previous_task=None
         
-        time += 1
+        time += 0.5
 
     for task in sorted_tasks:
         if task.remaining_time > 0:
