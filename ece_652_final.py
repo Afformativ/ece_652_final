@@ -34,18 +34,18 @@ def read_task(filename):
     return tasks
 
 def deadline_monotonic_scheduling(tasks,hyperperiod):
-    tasks.sort(key=lambda x: x.deadline)
+    sorted_tasks=sorted(tasks,key=lambda x: x.deadline)
     time=0
     previous_task=None
 
     while time<hyperperiod:
-        for task in tasks:
+        for task in sorted_tasks:
             if time % task.period==0:
                 task.remaining_time=task.execution_time
                 task.next_arrival_time=time + task.period
                 task.absolute_deadline=time + task.deadline
         
-        runnable_tasks=[t for t in tasks if t.remaining_time > 0  and time < t.absolute_deadline]
+        runnable_tasks=[t for t in sorted_tasks if t.remaining_time > 0  and time < t.absolute_deadline]
         if not runnable_tasks:
             time += 1
             continue
@@ -63,7 +63,7 @@ def deadline_monotonic_scheduling(tasks,hyperperiod):
         
         time += 1
 
-    for task in tasks:
+    for task in sorted_tasks:
         if task.remaining_time > 0:
             return 0, []
     
@@ -83,6 +83,7 @@ def main(filename):
         print()
 
 if __name__=="__main__":
+    if len(sys.argv)!=2:
+        sys.exit(1)
     filename = sys.argv[1]
     main(filename)
-
