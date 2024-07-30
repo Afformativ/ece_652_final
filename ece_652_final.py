@@ -20,6 +20,8 @@ class Task:
         self.deadline=deadline
         self.remaining_time=0
         self.preemptions=0
+        self.next_arrival_time=0
+        self.absolute_deadline=0
 
 def read_task(filename):
     tasks=[]
@@ -28,3 +30,39 @@ def read_task(filename):
             execution_time,period,deadline=map(float,line.strip().strip(','))
             tasks.append(Task(execution_time,period,deadline))
     return tasks
+
+def deadline_monotonic_scheduling(tasks,hyperperiod):
+    tasks.sort(key=lambda x: x.deadline)
+    time=0
+    previous_task=None
+
+    while time<hyperperiod:
+        for task in tasks:
+            if time % task.period==0:
+                task.remaining_time=task.execution_time
+                task.next_arrival_time=time + task.period
+                task.absolute_deadline=time + task.deadline
+        
+        runnable_tasks=[t for t in tasks if t.remaining_time > 0  and time < t.absolute_deadline]
+        if not runnable_tasks:
+            time += 1
+            continue
+        
+        highest_priority_task=min(runnable_tasks,key=lambda t: t.deadline)
+
+        if previous_task and previous_task != highest_priority_task:
+            previous_task.preemptions += 1
+        
+        highest_priority_task.remaining_time -= 1
+        previous_task = highest_priority_task
+
+        if highest_priority_task.remaining_time == 0:
+            previous_task=None
+        
+        time += 1
+
+    for task in tasks:
+        if task.remaining_time > 0:
+            return 0, []
+    
+    return 1, [task.preemptions for task in tasks]
