@@ -34,10 +34,29 @@ class Task:
 
 def read_task(filename):
     tasks=[]
-    with open(filename,'r') as file:
-        for line in file:
-            execution_time, period, deadline=map(Fraction, line.strip().split(','))
-            tasks.append(Task(execution_time,period,deadline))
+    try:
+        with open(filename,'r') as file:
+            for line in file:
+                try:
+                    parts=line.strip().split(',')
+                    if len(parts) !=3:
+                        raise ValueError(f"Line does not contain exactly three values: {line.strip()}")
+                    execution_time, period, deadline=map(Fraction, parts)
+
+                    if execution_time <=0 or period <=0 or deadline <=0:
+                        raise ValueError(f"Execution time, period and deadline must be positive integers. Found: {execution_time}, {period}, {deadline}")
+                    if execution_time > min(period, deadline):
+                        raise ValueError(f"execution time must be less than or equal to period and deadline. Found: {execution_time} > {min(period, deadline)}")
+                    tasks.append(Task(execution_time,period,deadline))
+                except ValueError as e:
+                    print(f"Error: {e}")
+                    continue
+    except FileNotFoundError:
+        print(f"Error: file '{filename}' not found.")
+        sys.exit(1)
+    except IOError:
+        print(f"Error:Cannot read file '{filename}'.")
+        sys.exit(1)
     return tasks
 
 def deadline_monotonic_scheduling(tasks,hyperperiod,precision):
@@ -79,6 +98,10 @@ def deadline_monotonic_scheduling(tasks,hyperperiod,precision):
 
 def main(filename):
     tasks = read_task(filename)
+    if not tasks:
+        print("Error: No valid tasks read from the file.")
+        sys.exit(1)
+    
     periods = [task.period for task in tasks]
     hyperperiod = calculate_hyperperiod(periods)
 
@@ -95,6 +118,7 @@ def main(filename):
 
 if __name__=="__main__":
     if len(sys.argv)!=2:
+        print('wrong input it should be like next: py ece_652_final <filename>')
         sys.exit(1)
     filename = sys.argv[1]
     main(filename)
