@@ -54,9 +54,6 @@ def read_task(filename):
     except FileNotFoundError:
         print(f"Error: file '{filename}' not found.")
         sys.exit(1)
-    except IOError:
-        print(f"Error:Cannot read file '{filename}'.")
-        sys.exit(1)
     return tasks
 
 def deadline_monotonic_scheduling(tasks,hyperperiod,precision):
@@ -118,7 +115,7 @@ def main(filename):
 
 if __name__=="__main__":
     if len(sys.argv)!=2:
-        print('wrong input it should be like next: py ece_652_final <filename>')
+        print('Error: wrong input, it should be: python ece_652_final <filename>')
         sys.exit(1)
     filename = sys.argv[1]
     main(filename)
