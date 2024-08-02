@@ -49,10 +49,8 @@ def read_task(filename):
                         raise ValueError(f"execution time must be less than or equal to period and deadline. Found: {execution_time} > {min(period, deadline)}")
                     tasks.append(Task(execution_time,period,deadline))
                 except ValueError as e:
-                    print(f"Error: {e}")
                     continue
     except FileNotFoundError:
-        print(f"Error: file '{filename}' not found.")
         sys.exit(1)
     return tasks
 
@@ -96,7 +94,6 @@ def deadline_monotonic_scheduling(tasks,hyperperiod,precision):
 def main(filename):
     tasks = read_task(filename)
     if not tasks:
-        print("Error: No valid tasks read from the file.")
         sys.exit(1)
     
     periods = [task.period for task in tasks]
@@ -115,7 +112,6 @@ def main(filename):
 
 if __name__=="__main__":
     if len(sys.argv)!=2:
-        print('Error: wrong input, it should be: python ece_652_final <filename>')
         sys.exit(1)
     filename = sys.argv[1]
     main(filename)
